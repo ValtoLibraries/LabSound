@@ -164,10 +164,9 @@ void AudioContext::handleAutomaticSources()
     {
         if ((*i)->hasFinished())
         {
-            pendingNodeConnections.emplace(*i, std::shared_ptr<AudioNode>(), false);
+            pendingNodeConnections.emplace(std::shared_ptr<AudioNode>(), *i, ConnectionType::Disconnect, 0, 0); // order? 
             i = automaticSources.erase(i);
-            if (i == automaticSources.end())
-                break;
+            if (i == automaticSources.end()) break;
         }
     }
 }
@@ -194,19 +193,20 @@ void AudioContext::handlePostRenderTasks(ContextRenderLock& r)
     handleAutomaticSources();
 }
 
-void AudioContext::connect(std::shared_ptr<AudioNode> destination, std::shared_ptr<AudioNode> source, uint32_t destIdx = 0, uint32_t srcIdx = 0)
+void AudioContext::connect(std::shared_ptr<AudioNode> destination, std::shared_ptr<AudioNode> source, uint32_t destIdx, uint32_t srcIdx)
 {
     // input(src), output(dest)
     std::lock_guard<std::mutex> lock(automaticSourcesMutex);
     if (srcIdx > source->numberOfOutputs()) throw std::out_of_range("Output index greater than available outputs");
     if (destIdx > destination->numberOfInputs()) throw std::out_of_range("Input index greater than available inputs");
-    pendingNodeConnections.emplace(destination, source, destIdx, srcIdx, ConnectionType::Connect);
+    pendingNodeConnections.emplace(destination, source, ConnectionType::Connect, destIdx, srcIdx);
 }
 
-void AudioContext::disconnect(std::shared_ptr<AudioNode> destination, std::shared_ptr<AudioNode> source, uint32_t destIdx = 0, uint32_t srcIdx = 0)
+void AudioContext::disconnect(std::shared_ptr<AudioNode> destination, std::shared_ptr<AudioNode> source, uint32_t destIdx, uint32_t srcIdx)
 {
+    // fixme - checks
     std::lock_guard<std::mutex> lock(automaticSourcesMutex);
-    pendingNodeConnections.emplace(destination, source, destIdx, srcIdx, ConnectionType::Disconnect);
+    pendingNodeConnections.emplace(destination, source, ConnectionType::Disconnect, destIdx, srcIdx);
 }
 
 void AudioContext::update(ContextGraphLock & g)
@@ -234,13 +234,13 @@ void AudioContext::update(ContextGraphLock & g)
         // from, to => destination, source => 
         if (connection.type == ConnectionType::Connect)
         {
-            AudioNodeInput::connect(g, connection.source->input(connection.srcIndex), connection.destination->output(connection.destIndex));
+            AudioNodeInput::connect(g, connection.destination->input(connection.destIndex), connection.source->output(connection.srcIndex));
         }
         else if (connection.type == ConnectionType::Disconnect)
         {
             if (connection.source && connection.destination)
             {
-                AudioNodeInput::disconnect(g, connection.destination->input(connection.srcIndex), connection.source->output(connection.destIndex));
+                AudioNodeInput::disconnect(g, connection.destination->input(connection.destIndex), connection.source->output(connection.srcIndex));
             }
             else if (connection.destination)
             {
