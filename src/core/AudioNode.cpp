@@ -44,10 +44,6 @@ void AudioNode::uninitialize()
 void AudioNode::setNodeType(NodeType type)
 {
     m_nodeType = type;
-
-#if DEBUG_AUDIONODE_REFERENCES
-    ++s_nodeCount[type];
-#endif
 }
 
 void AudioNode::lazyInitialize()

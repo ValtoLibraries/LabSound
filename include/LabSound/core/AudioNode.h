@@ -81,6 +81,8 @@ class ContextRenderLock;
 // Most processing nodes such as filters will have one input and one output, although multiple inputs and outputs are possible.
 class AudioNode
 {
+public:
+
     enum
     {
         ProcessingSizeInFrames = 128
@@ -118,12 +120,6 @@ class AudioNode
 
     std::shared_ptr<AudioNodeInput> input(unsigned index);
     std::shared_ptr<AudioNodeOutput> output(unsigned index);
-
-    void connect(AudioContext * ctx, AudioNode * destination, unsigned outputIndex, unsigned inputIndex);
-    void connect(ContextGraphLock & g, std::shared_ptr<AudioParam>, unsigned outputIndex);
-
-    void disconnect(AudioContext * ctx);
-    void disconnect(AudioContext * ctx, unsigned outputIndex);
 
     virtual float sampleRate() const { return m_sampleRate; }
 
