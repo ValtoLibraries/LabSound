@@ -182,7 +182,7 @@ private:
     {
         bool operator()(const PendingConnection & p1, const PendingConnection & p2)
         {
-            return true;
+            return false;
             /*
             if (!p2.destination->isScheduledNode()) return true;
             if (!p1.destination->isScheduledNode()) return false;
