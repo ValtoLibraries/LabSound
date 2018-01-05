@@ -164,7 +164,7 @@ void AudioContext::handleAutomaticSources()
     {
         if ((*i)->hasFinished())
         {
-            pendingNodeConnections.emplace(std::shared_ptr<AudioNode>(), *i, ConnectionType::Disconnect, 0, 0); // order? 
+            pendingNodeConnections.emplace(*i, std::shared_ptr<AudioNode>(), ConnectionType::Disconnect, 0, 0); // order? 
             i = automaticSources.erase(i);
             if (i == automaticSources.end()) break;
         }

@@ -36,7 +36,7 @@ PeakCompressorApp g_peakCompressor;
 RedAlertApp g_redAlert;
 RhythmApp g_rhythm;
 RhythmAndFiltersApp g_rhythmAndFilters;
-SpatializationApp g_spatialization;
+SpatializationApp g_spatialization; // broken
 TremoloApp g_tremolo;
 ValidationApp g_validation;
 InfiniteFMApp g_infiniteFM;
@@ -46,6 +46,6 @@ GrooveApp g_grooveExample;
 // Windows users will need to set a valid working directory for the LabSoundExamples project, for instance $(ProjectDir)../../assets
 int main (int argc, char *argv[])
 {
-    g_liveGraphUpdateApp.PlayExample();
+    g_grooveExample.PlayExample();
     return 0;
 }
