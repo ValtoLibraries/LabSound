@@ -71,7 +71,7 @@ struct InfiniteFMApp : public LabSoundExampleApp
             
             // Set up processing chain:
             context->connect(modulatorGain, modulator, 0, 0);                   // Modulator to Gain
-            context->connect(g, osc->frequency(), modulatorGain, 0, 0);         // Gain to frequency parameter
+            context->connectParam(osc->frequency(), modulatorGain, 0);          // Gain to frequency parameter
             context->connect(trigger, osc, 0, 0);                               // Osc to ADSR
             context->connect(signalGain, trigger, 0, 0);                        // ADSR to signalGain
             context->connect(feedbackTap, signalGain, 0, 0);                    // Signal to Feedback
