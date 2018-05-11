@@ -76,11 +76,6 @@ namespace lab
         initialize();
     }
     
-    SpatializationNode::~SpatializationNode()
-    {
-        
-    }
-    
     void SpatializationNode::setOccluders(std::shared_ptr<Occluders> o)
     {
         occluders = o;
@@ -92,7 +87,18 @@ namespace lab
             return 1.f;
         
         AudioListener & listener = r.context()->listener();
-        float occlusionAttenuation = occluders ? occluders->occlusion(m_position, listener.position()) : 1.0f;
+
+        FloatPoint3D fwd = {
+            listener.forwardX()->value(r),
+            listener.forwardY()->value(r),
+            listener.forwardZ()->value(r) };
+
+        FloatPoint3D pos = {
+            positionX()->value(r),
+            positionY()->value(r),
+            positionZ()->value(r) };
+
+        float occlusionAttenuation = occluders ? occluders->occlusion(pos, fwd) : 1.0f;
         return occlusionAttenuation * PannerNode::distanceConeGain(r);
     }
 }

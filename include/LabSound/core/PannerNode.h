@@ -18,25 +18,34 @@ namespace lab {
 // A distance effect will attenuate the gain as the position moves away from the listener.
 // A cone effect will attenuate the gain as the orientation moves away from the listener.
 // All of these effects follow the OpenAL specification very closely.
-    
+
 class DistanceEffect;
 class ConeEffect;
 class AudioBus;
 class Panner;
 class HRTFDatabaseLoader;
-    
-class PannerNode : public AudioNode 
+
+class PannerNode : public AudioNode
 {
+    std::shared_ptr<AudioParam> m_orientationX;
+    std::shared_ptr<AudioParam> m_orientationY;
+    std::shared_ptr<AudioParam> m_orientationZ;
+    std::shared_ptr<AudioParam> m_velocityX;
+    std::shared_ptr<AudioParam> m_velocityY;
+    std::shared_ptr<AudioParam> m_velocityZ;
+    std::shared_ptr<AudioParam> m_positionX;
+    std::shared_ptr<AudioParam> m_positionY;
+    std::shared_ptr<AudioParam> m_positionZ;
 
 public:
 
-    enum 
+    enum
     {
         LINEAR_DISTANCE = 0,
         INVERSE_DISTANCE = 1,
         EXPONENTIAL_DISTANCE = 2,
     };
-    
+
     PannerNode(const float sampleRate, const std::string & searchPath = "");
     virtual ~PannerNode();
 
@@ -52,16 +61,28 @@ public:
     void setPanningModel(PanningMode m);
 
     // Position
-    FloatPoint3D position() const { return m_position; }
-    void setPosition(float x, float y, float z) { m_position = { x, y, z }; }
+    void setPosition(float x, float y, float z) { setPosition(FloatPoint3D(x, y, z)); }
+    void setPosition(const FloatPoint3D & position);
 
-    // Orientation
-    FloatPoint3D orientation() const { return m_orientation; }
-    void setOrientation(float x, float y, float z) { m_orientation = { x, y, z }; }
+    std::shared_ptr<AudioParam> positionX() const { return m_positionX; }
+    std::shared_ptr<AudioParam> positionY() const { return m_positionY; }
+    std::shared_ptr<AudioParam> positionZ() const { return m_positionZ; }
+
+    // The orientation property indicates the X component of the direction in
+    // which the audio source is facing, in cartesian space. The complete
+    // vector is defined by the position of the audio source, and the direction
+    // in which it is facing.
+    void setOrientation(const FloatPoint3D& fwd);
+    std::shared_ptr<AudioParam> orientationX() const { return m_orientationX; }
+    std::shared_ptr<AudioParam> orientationY() const { return m_orientationY; }
+    std::shared_ptr<AudioParam> orientationZ() const { return m_orientationZ; }
 
     // Velocity
-    FloatPoint3D velocity() const { return m_velocity; }
-    void setVelocity(float x, float y, float z) { m_velocity = { x, y, z }; }
+    void setVelocity(float x, float y, float z) { setVelocity(FloatPoint3D(x, y, z)); }
+    void setVelocity(const FloatPoint3D &velocity);
+    std::shared_ptr<AudioParam> velocityX() const { return m_velocityX; }
+    std::shared_ptr<AudioParam> velocityY() const { return m_velocityY; }
+    std::shared_ptr<AudioParam> velocityZ() const { return m_velocityZ; }
 
     // Distance parameters
     unsigned short distanceModel();
@@ -99,7 +120,7 @@ public:
 protected:
 
     std::shared_ptr<HRTFDatabaseLoader> m_hrtfDatabaseLoader;
-    
+
     // Returns the combined distance and cone gain attenuation.
     virtual float distanceConeGain(ContextRenderLock & r);
 
@@ -112,10 +133,6 @@ protected:
 
     PanningMode m_panningModel;
 
-    FloatPoint3D m_position{ 0, 0, 0 };
-    FloatPoint3D m_orientation{ 0, 0, 0 };
-    FloatPoint3D m_velocity{ 0, 0, 0 };
-
     std::shared_ptr<AudioParam> m_distanceGain;
     std::shared_ptr<AudioParam> m_coneGain;
 
@@ -123,7 +140,6 @@ protected:
     std::unique_ptr<ConeEffect> m_coneEffect;
 
     float m_lastGain = -1.0f;
-    unsigned m_connectionCount = 0;
     float m_sampleRate;
 };
 
